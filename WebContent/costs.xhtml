@@ -12,22 +12,29 @@
  
 	<h:head>
 		<title>Costs</title>
+		<style>
+			.myCustomStyle {
+				width: 100%;
+			}
+		</style>
 	</h:head>
 	
 	<h:body>     	   
 	
-	   	<h:outputLabel value="Costs page"/>	
+	   	<div align="center"><h:outputLabel value="Hello, #{bean1.name} !" style="font-size:200%;"/></div>
+	   	
 	   	
 	   	<p:spacer width="100" height="50"></p:spacer>
 	   	<div align="center">
 	   		<h:form>          
-		        <h:panelGrid columns="5" cellpadding="5">	        
+		        <h:panelGrid columns="6" cellpadding="5">	        
 		        	
 		            <h:outputLabel for="type" value="Type:" />
 		            <h:outputLabel for="sum" value="Sum:" />
 		            <h:outputLabel for="date" value="Date:" />
 		            <h:outputLabel for="category" value="Category:" />
 		            <h:outputLabel for="description" value="Description:" />
+		            <h:outputLabel for="addBtn" value="" />
 		            
 		            <p:selectOneMenu id="type"  value="#{cost1.type}">
 	        			<f:selectItem itemLabel="Incomes" itemValue="incomes" />
@@ -52,9 +59,9 @@
 		            
 		            <p:inputText id="description" value="#{cost1.description}" />
 		            
-		            <f:facet name="footer">
-		                <p:commandButton value="Add cost" actionListener="#{cost1.addCost()}" oncomplete="#{bean1.action()}" />		                                 
-		            </f:facet>
+		            <p:commandButton id="addBtn" value="Add cost" actionListener="#{cost1.addCost()}" oncomplete="#{bean1.action()}"/>
+		            
+		           
 		            
 		         </h:panelGrid>		    
 			</h:form>
@@ -68,10 +75,7 @@
 	    		<p:spacer width="40" height="10"></p:spacer>
 	    		<p:commandButton value="Apply filter" onclick="#{bean1.filterByDate()}" />	
 	    	</h:form>
-    	</div>
-    
-    <p:spacer width="100" height="50"></p:spacer>	   	
-	  
+    	</div>   
      
     	<p:spacer width="100" height="50"></p:spacer>
 	   	
@@ -96,15 +100,19 @@
 				</p:column>
 				<p:column headerText="Description" footerText="Description">
 					<h:outputText value="#{cost.description}" />	 						
-				</p:column>													
+				</p:column>					 												
 						
 		</p:dataTable>  
+		
+		<p:spacer width="100" height="50"></p:spacer>
 		
 		<div align="center">
 			<h:form>
 				<p:commandButton value="Logout" action="logout.xhtml?faces-redirect=true" onlcick="logout.xhtml?faces-redirect=true"/>	
 			</h:form>			 
 		</div>
+		
+		<p:spacer width="100" height="50"></p:spacer>
 	   	
 	   	   	
 	</h:body>

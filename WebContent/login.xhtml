@@ -12,32 +12,41 @@
  
 	<h:head>
 		<title>Login</title>
+		<style>
+			.myCustomStyle {
+				width: 100%;
+			}
+		</style>
 	</h:head>
 	 
 	<h:body>  	
+	
 	   <div align="center">
-	   	<h:form>          
+	   	         
 				<h:outputLabel value="Login" style="font-size:200%;" />
-		        <h:panelGrid columns="2" cellpadding="5">	        
-		        	
-		            <h:outputLabel for="username" value="Username:" />
-		            <p:inputText id="username" value="#{bean1.name}" required="true" label="username" />
-		 			
-		            <h:outputLabel for="password" value="Password:" />
-		            <p:password id="password" value="#{bean1.pass}" required="true" label="password" />
-		 
-		            <f:facet name="footer">
-		                <p:spacer width="95" height="10"></p:spacer><p:commandButton value="Login" action="#{bean1.action()}"/>	
-		            </f:facet>  
-		            
-		        </h:panelGrid>		    
-		</h:form>
-		
-		<h:form>			
-			<p:commandButton value="Register" action="register.xhtml?faces-redirect=true" onclick="register.xhtml?faces-redirect=true"/>
-		</h:form> 
-		
-		 
+				<h:panelGrid columns="1" cellpadding="5">
+					<h:form>
+				        <h:panelGrid columns="2" cellpadding="5">	        
+				        	 
+				            <h:outputLabel for="username" value="Username:" />
+				            <p:inputText id="username" value="#{bean1.name}" required="true" label="username" />
+				 			
+				            <h:outputLabel for="password" value="Password:" />
+				            <p:password id="password" value="#{bean1.pass}" required="true" label="password" />
+				 
+				            <f:facet name="footer">			            
+				                <p:commandButton value="Login" action="#{bean1.action()}" styleClass="myCustomStyle"/>				                				                
+				            </f:facet> 
+				        </h:panelGrid>	
+			        </h:form> 	    
+		        
+			    	<f:facet name="footer">	
+			        	<h:form>			
+							<p:commandButton value="Register" action="register.xhtml?faces-redirect=true" onclick="register.xhtml?faces-redirect=true" styleClass="myCustomStyle"/>
+						</h:form> 
+			        </f:facet> 
+			    	
+			    </h:panelGrid>
 	   </div>
 		
 	   

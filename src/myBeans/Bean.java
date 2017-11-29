@@ -84,7 +84,9 @@ public class Bean implements Serializable {
 		}
 		else {
 			isLogged = false;
+			
 			return "login.xhtml";
+			
 		}
 		
 	}

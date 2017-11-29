@@ -15,9 +15,7 @@
 </h:head>
  
 <h:body>     
-	<div align="center"><h:outputLabel value="Registration" style="font-size:200%;" /></div>
-	<div align="center">   ${message} </div>	
-	<div align="center"><font color="red">   ${errMessage} </font></div>	
+	<div align="center"><h:outputLabel value="Registration" style="font-size:200%;" /></div>		
 	<div align="center">
 		<h:form>			
 			<p:messages id="msgs" />
@@ -39,7 +37,7 @@
             	
             	<h:outputLabel for="email" value="Email:" />
             	<p:inputText id="email" value="#{user1.email}" required="true" label="email">
-            		<f:validateRegex pattern = ".+@.+" />
+            		<f:validateRegex pattern = ".+@.+\..+" />
                 	<p:ajax update="emailMsg" event="keyup" />
             	</p:inputText>
             	<p:message for="email" id="emailMsg" display="icon" />           		

@@ -11,8 +11,6 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.primefaces.context.RequestContext;
-
 @ManagedBean(name = "cost1")
 @SessionScoped
 
