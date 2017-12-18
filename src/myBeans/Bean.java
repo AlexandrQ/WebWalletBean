@@ -13,8 +13,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
+
 
 
 @ManagedBean(name = "bean1")
@@ -29,12 +32,32 @@ public class Bean implements Serializable {
 	private ArrayList<Costs> myCosts = new ArrayList<Costs>();
 	private Date fromDate;
 	private Date toDate;
+	private String outcomes = "0";
+	private String incomes = "0";
 
 
 	public Bean() {
 		
 	}
 	
+	
+	
+	public String getOutcomes() {
+		return outcomes;
+	}
+
+	public void setOutcomes(String outcomes) {
+		this.outcomes = outcomes;
+	}
+
+	public String getIncomes() {
+		return incomes;
+	}
+
+	public void setIncomes(String incomes) {
+		this.incomes = incomes;
+	}
+
 	public Date getFromDate() {
 		return fromDate;
 	}
@@ -84,7 +107,11 @@ public class Bean implements Serializable {
 		}
 		else {
 			isLogged = false;
-			
+			 //RequestContext context = RequestContext.getCurrentInstance();
+		     FacesMessage message = null;
+		     message = new FacesMessage(FacesMessage.SEVERITY_WARN, "Loggin Error", "Invalid credentials");
+		     FacesContext.getCurrentInstance().addMessage(null, message);
+		     			
 			return "login.xhtml";
 			
 		}
@@ -104,6 +131,8 @@ public class Bean implements Serializable {
 	
 	private ArrayList<Costs> filterCostsByDate(String username, String fromDate, String toDate) {
 		String querryStr = "SELECT type, sum, date, category, description FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND date >= '" + fromDate + "' AND date <= '" + toDate + "'";		
+		String querryStrOut = "SELECT SUM(sum) FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND date >= '" + fromDate + "' AND date <= '" + toDate + "' AND type = 'outcomes'";
+		String querryStrIn = "SELECT SUM(sum) FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND date >= '" + fromDate + "' AND date <= '" + toDate + "' AND type = 'incomes'";
 		Connection dbConnection = null;
 	    Statement statement = null;
 	    ArrayList<Costs> myCosts = new ArrayList<Costs>();
@@ -114,7 +143,6 @@ public class Bean implements Serializable {
 		    
 		    ResultSet rs = statement.executeQuery(querryStr);		    
 		    
-		    
 		    while (rs.next()) {	
 		    	Costs myCost = new Costs(rs.getString("type"), 
 		    			rs.getString("sum").substring(0, rs.getString("sum").length()-1), 
@@ -123,6 +151,23 @@ public class Bean implements Serializable {
 		    			rs.getString("description") );	 
 		    	myCosts.add(myCost);
 		    }
+		    		    
+		    rs = statement.executeQuery(querryStrOut);	   
+		    		    
+		    while (rs.next()) {		    	
+		    	
+		    	if(rs.getString(1) != null) {		    		
+		    		this.outcomes = rs.getString(1).substring(0, rs.getString(1).length()-1);	
+		    	} else this.outcomes = "0";	    	
+		    }
+		    
+		    rs = statement.executeQuery(querryStrIn);
+		    while (rs.next()) {			    	
+		    	if(rs.getString(1) != null) {		    		
+		    		this.incomes = rs.getString(1).substring(0, rs.getString(1).length()-1);
+		    	} else this.incomes = "0";
+		    }
+		    
 		    
 		    return myCosts;
 		    		    
@@ -145,6 +190,9 @@ public class Bean implements Serializable {
 	
 	private ArrayList<Costs> getAllCostsFromDB(String username) {
 		String querryStr = "SELECT type, sum, date, category, description FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid";		
+		String querryStrOut = "SELECT SUM(sum) FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND type = 'outcomes'";
+		String querryStrIn = "SELECT SUM(sum) FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND type = 'incomes'";
+		
 		Connection dbConnection = null;
 	    Statement statement = null;
 	    ArrayList<Costs> myCosts = new ArrayList<Costs>();
@@ -162,6 +210,21 @@ public class Bean implements Serializable {
 		    			rs.getString("category"), 
 		    			rs.getString("description") );	 
 		    	myCosts.add(myCost);
+		    }
+		    
+		    rs = statement.executeQuery(querryStrOut);
+		    while (rs.next()) {	
+		    	if(rs.getString(1) != null) {
+		    		this.outcomes = rs.getString(1).substring(0, rs.getString(1).length()-1);	
+		    	} else this.outcomes = "0";
+		    		    	
+		    }
+		    
+		    rs = statement.executeQuery(querryStrIn);
+		    while (rs.next()) {	
+		    	if(rs.getString(1) != null) {
+		    		this.incomes = rs.getString(1).substring(0, rs.getString(1).length()-1);	
+		    	} else this.incomes = "0";
 		    }
 		    
 		    return myCosts;		    		    

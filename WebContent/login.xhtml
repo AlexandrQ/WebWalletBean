@@ -21,6 +21,8 @@
 	 
 	<h:body>  	
 	
+	 <p:growl id="growl" sticky="true" showDetail="true" life="3000" />
+	
 	   <div align="center">
 	   	         
 				<h:outputLabel value="Login" style="font-size:200%;" />
@@ -35,7 +37,7 @@
 				            <p:password id="password" value="#{bean1.pass}" required="true" label="password" />
 				 
 				            <f:facet name="footer">			            
-				                <p:commandButton value="Login" action="#{bean1.action()}" styleClass="myCustomStyle"/>				                				                
+				                <p:commandButton value="Login" action="#{bean1.action()}" styleClass="myCustomStyle" update="growl"/>				                				                
 				            </f:facet> 
 				        </h:panelGrid>	
 			        </h:form> 	    

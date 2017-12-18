@@ -11,8 +11,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 
 
 @ManagedBean(name = "user1")
@@ -60,12 +62,15 @@ public class User implements Serializable{
 				}			
 			} else {				
 				this.username = null;			
-				return "register.xhtml?faces-redirect=true";
+				
 			}
-		}
-		else {				
-			return "register.xhtml?faces-redirect=true";
-		}
+		}				
+		
+		FacesMessage message = null;
+		message = new FacesMessage(FacesMessage.SEVERITY_WARN, "Register Error", "Invalid data");
+		FacesContext.getCurrentInstance().addMessage(null, message);
+		return "register.xhtml?faces-redirect=true";
+		
 
 	}
 	
