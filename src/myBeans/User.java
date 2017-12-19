@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -15,6 +14,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+
+import DBConn.SingletonDBConnection;
 
 
 @ManagedBean(name = "user1")
@@ -81,7 +82,7 @@ public class User implements Serializable{
 	    Statement statement = null;
 		
 		try {
-		    dbConnection = getDBConnection();
+		    dbConnection = SingletonDBConnection.getInstance().getConnInst();
 		    statement = dbConnection.createStatement();		 
 		    
 		    ResultSet rs = statement.executeQuery(querryStr);		    
@@ -126,7 +127,7 @@ public class User implements Serializable{
 		    Statement statement = null;
 		    
 		    try {
-			    dbConnection = getDBConnection();
+			    dbConnection = SingletonDBConnection.getInstance().getConnInst();
 			    statement = dbConnection.createStatement();		 
 			    
 			    statement.executeUpdate(querryStr);			    
@@ -154,23 +155,4 @@ public class User implements Serializable{
 		}
 		else return false;
 	}
-	
-	private static Connection getDBConnection() {
-	    Connection dbConnection = null;
-	    try {
-	        Class.forName("org.postgresql.Driver");
-	    } catch (ClassNotFoundException e) {
-	        System.out.println(e.getMessage());
-	        
-	    }
-	    try {
-	        dbConnection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/myTestPostgresDB","postgres", "admin");
-	        return dbConnection;
-	    } catch (SQLException e) {
-	        System.out.println(e.getMessage());
-	    }
-	    return dbConnection;
-	}
-	
-	
 }

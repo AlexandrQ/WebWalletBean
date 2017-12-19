@@ -11,6 +11,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import DBConn.SingletonDBConnection;
 import myBeans.Bean;
 
 
@@ -33,6 +34,10 @@ public class UsersFilter implements Filter {
 		HttpServletResponse resp = (HttpServletResponse) response;
 		Bean session = (Bean) req.getSession().getAttribute("bean1");
 		String url = req.getRequestURI();
+		
+		
+		SingletonDBConnection.getInstance();
+		
 		
 		if (session == null || !session.isLogged) {
 			if(url.indexOf("/costs.xhtml") >= 0 || url.indexOf("/logout.xhtml") >= 0) {

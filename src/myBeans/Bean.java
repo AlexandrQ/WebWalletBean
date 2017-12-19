@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -18,6 +17,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
+import DBConn.SingletonDBConnection;
 
 
 @ManagedBean(name = "bean1")
@@ -100,7 +100,7 @@ public class Bean implements Serializable {
 	
 	public String action() {		
 		if(UserAutenticate(name, pass)) {
-			isLogged = true;			
+			isLogged = true;					
 			this.myCosts = getAllCostsFromDB(name);
 			return "costs.xhtml?faces-redirect=true";
 			
@@ -133,15 +133,17 @@ public class Bean implements Serializable {
 		String querryStr = "SELECT type, sum, date, category, description FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND date >= '" + fromDate + "' AND date <= '" + toDate + "'";		
 		String querryStrOut = "SELECT SUM(sum) FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND date >= '" + fromDate + "' AND date <= '" + toDate + "' AND type = 'outcomes'";
 		String querryStrIn = "SELECT SUM(sum) FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND date >= '" + fromDate + "' AND date <= '" + toDate + "' AND type = 'incomes'";
+		
 		Connection dbConnection = null;
 	    Statement statement = null;
+	    ResultSet rs;
 	    ArrayList<Costs> myCosts = new ArrayList<Costs>();
 	    
 	    try {
-		    dbConnection = getDBConnection();
+		    dbConnection = SingletonDBConnection.getInstance().getConnInst();
 		    statement = dbConnection.createStatement();	 
 		    
-		    ResultSet rs = statement.executeQuery(querryStr);		    
+		    rs = statement.executeQuery(querryStr);		    
 		    
 		    while (rs.next()) {	
 		    	Costs myCost = new Costs(rs.getString("type"), 
@@ -169,12 +171,12 @@ public class Bean implements Serializable {
 		    }
 		    
 		    
-		    return myCosts;
+		    //return myCosts;
 		    		    
 			
 		} catch (SQLException e) {
 		    System.out.println(e.getMessage());
-		    return myCosts;
+		    //return myCosts;
 		    
 		} finally {
 			if (dbConnection != null) {
@@ -184,7 +186,9 @@ public class Bean implements Serializable {
 					e.printStackTrace();
 				}
 	        }				
-		}		    
+		}
+	    
+	    return myCosts;
 	}
 	
 	
@@ -195,13 +199,14 @@ public class Bean implements Serializable {
 		
 		Connection dbConnection = null;
 	    Statement statement = null;
+	    ResultSet rs;
 	    ArrayList<Costs> myCosts = new ArrayList<Costs>();
 	    
 	    try {
-		    dbConnection = getDBConnection();
+		    dbConnection = SingletonDBConnection.getInstance().getConnInst();
 		    statement = dbConnection.createStatement();	 
 		    
-		    ResultSet rs = statement.executeQuery(querryStr);		    
+		    rs = statement.executeQuery(querryStr);		    
 		    
 		    while (rs.next()) {	
 		    	Costs myCost = new Costs(rs.getString("type"), 
@@ -216,8 +221,7 @@ public class Bean implements Serializable {
 		    while (rs.next()) {	
 		    	if(rs.getString(1) != null) {
 		    		this.outcomes = rs.getString(1).substring(0, rs.getString(1).length()-1);	
-		    	} else this.outcomes = "0";
-		    		    	
+		    	} else this.outcomes = "0";		    		    	
 		    }
 		    
 		    rs = statement.executeQuery(querryStrIn);
@@ -225,14 +229,10 @@ public class Bean implements Serializable {
 		    	if(rs.getString(1) != null) {
 		    		this.incomes = rs.getString(1).substring(0, rs.getString(1).length()-1);	
 		    	} else this.incomes = "0";
-		    }
-		    
-		    return myCosts;		    		    
+		    }		    		    		    
 			
 		} catch (SQLException e) {
-		    System.out.println(e.getMessage());
-		    return myCosts;
-		    
+		    System.out.println(e.getMessage());			    
 		} finally {
 			if (dbConnection != null) {
 	            try {
@@ -241,7 +241,8 @@ public class Bean implements Serializable {
 					e.printStackTrace();
 				}
 	        }				
-		}		    
+		}
+	    return myCosts;
 	}
 	
 	
@@ -260,12 +261,13 @@ public class Bean implements Serializable {
 		String querryStr = "SELECT COUNT(username) AS Count FROM public.\"Users\" WHERE username = '" + username + "' AND password = '" + Password + "'";
 		Connection dbConnection = null;
 	    Statement statement = null;
+	    ResultSet rs;
 		
-		try {
-		    dbConnection = getDBConnection();
+		try {				
+		    dbConnection = SingletonDBConnection.getInstance().getConnInst();		    	
 		    statement = dbConnection.createStatement();		 
 		    
-		    ResultSet rs = statement.executeQuery(querryStr);		    
+		    rs = statement.executeQuery(querryStr);		    
 		    
 		    if (rs.next()) {		    	
 		    	if(rs.getString("Count").equals("1") ) {
@@ -287,23 +289,6 @@ public class Bean implements Serializable {
 				}
 	        }			
 		}	
-	}
-	
-	private static Connection getDBConnection() {
-	    Connection dbConnection = null;
-	    try {
-	        Class.forName("org.postgresql.Driver");
-	    } catch (ClassNotFoundException e) {
-	        System.out.println(e.getMessage());
-	        
-	    }
-	    try {
-	        dbConnection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/myTestPostgresDB","postgres", "admin");
-	        return dbConnection;
-	    } catch (SQLException e) {
-	        System.out.println(e.getMessage());
-	    }
-	    return dbConnection;
 	}
 
 }
