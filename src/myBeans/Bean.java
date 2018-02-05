@@ -9,8 +9,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -18,6 +23,7 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
 import DBConn.SingletonDBConnection;
+import org.primefaces.model.chart.PieChartModel;
 
 
 @ManagedBean(name = "bean1")
@@ -34,6 +40,9 @@ public class Bean implements Serializable {
 	private Date toDate;
 	private String outcomes = "0";
 	private String incomes = "0";
+	private PieChartModel costsChart;
+	private PieChartModel incomesChart;
+	private PieChartModel outcomesChart;
 
 
 	public Bean() {
@@ -42,6 +51,18 @@ public class Bean implements Serializable {
 	
 	
 	
+	public PieChartModel getCostsChart() {
+		return costsChart;
+	}
+	
+	public PieChartModel getOutcomesChart() {
+		return outcomesChart;
+	}
+	
+	public PieChartModel getIncomesChart() {
+		return incomesChart;
+	}
+
 	public String getOutcomes() {
 		return outcomes;
 	}
@@ -102,6 +123,7 @@ public class Bean implements Serializable {
 		if(UserAutenticate(name, pass)) {
 			isLogged = true;					
 			this.myCosts = getAllCostsFromDB(name);
+			createCharts();
 			return "costs.xhtml?faces-redirect=true";
 			
 		}
@@ -121,16 +143,123 @@ public class Bean implements Serializable {
 	
 	public String filterByDate() {		
 		if (this.fromDate != null && this.toDate != null) {
-			this.myCosts = filterCostsByDate(this.name, this.fromDate.toString(), this.toDate.toString());	
+			this.myCosts = filterCostsByDate(this.name, this.fromDate.toString(), this.toDate.toString());
+			createCharts();
 			return "costs.xhtml?faces-redirect=true";
 		}
 		else return "costs.xhtml?faces-redirect=true";
 		
 	}
 	
+	private void createCharts() {
+		createCostsChart();
+		createIncomesChart();
+		createOutcomesChart();
+		
+	}
+	
+	
+	private void createCostsChart()  {
+        costsChart = new PieChartModel();
+        Number number = 0;
+        NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
+        
+        try {
+        	number = format.parse(outcomes);
+        } catch(ParseException e) {
+        	System.out.println(e);
+        }
+        
+        double outD = number.doubleValue(); 
+        
+        try {
+        	number = format.parse(incomes);
+        } catch(ParseException e) {
+        	System.out.println(e);
+        }        
+        
+        double inD = number.doubleValue(); 
+         
+        costsChart.set("Outcomes", outD);
+        costsChart.set("Incomes", inD);        
+         
+        costsChart.setTitle("Costs chart");
+        costsChart.setLegendPosition("w");
+    }
+	
+	private void createOutcomesChart()  {
+        outcomesChart = new PieChartModel();
+        HashMap <String, Double> outcomesDataForChart = new HashMap<String, Double>();
+        double outSum = 0;
+        Number number = 0;
+        NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
+        
+        for (int i = 0; i < myCosts.size(); i++) {
+        	if(myCosts.get(i).getType().equals("outcomes") ) {
+        		try {
+                	number = format.parse(myCosts.get(i).getSum());
+                } catch(ParseException e) {
+                	System.out.println(e);
+                }
+        		try {
+        			outSum = outcomesDataForChart.get(myCosts.get(i).getCategory());
+                } catch(NullPointerException e) {
+                	System.out.println(e);
+                	outSum = 0;
+                }
+        		
+        		outSum += number.doubleValue();
+        		
+        		outcomesDataForChart.put(myCosts.get(i).getCategory(), outSum);
+        	}
+        }        
+        
+        for (Map.Entry<String, Double> entry : outcomesDataForChart.entrySet()) {
+        	outcomesChart.set(entry.getKey(), entry.getValue());
+        }
+         
+        outcomesChart.setTitle("Outcomes chart");
+        outcomesChart.setLegendPosition("w");
+    }
+	
+	private void createIncomesChart()  {
+        incomesChart = new PieChartModel();
+        HashMap <String, Double> incomesDataForChart = new HashMap<String, Double>();
+        double InSum = 0;
+        Number number = 0;
+        NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
+        
+        for (int i = 0; i < myCosts.size(); i++) {
+        	if(myCosts.get(i).getType().equals("incomes") ) {
+        		try {
+                	number = format.parse(myCosts.get(i).getSum());
+                } catch(ParseException e) {
+                	System.out.println(e);
+                }
+        		try {
+        			InSum = incomesDataForChart.get(myCosts.get(i).getCategory());
+                } catch(NullPointerException e) {
+                	System.out.println(e);
+                	InSum = 0;
+                }
+        		
+        		InSum += number.doubleValue();
+        		
+        		incomesDataForChart.put(myCosts.get(i).getCategory(), InSum);
+        	}
+        }        
+        
+        for (Map.Entry<String, Double> entry : incomesDataForChart.entrySet()) {
+        	incomesChart.set(entry.getKey(), entry.getValue());
+        }
+         
+        incomesChart.setTitle("Incomes chart");
+        incomesChart.setLegendPosition("w");
+    }
+	
 	
 	private ArrayList<Costs> filterCostsByDate(String username, String fromDate, String toDate) {
-		String querryStr = "SELECT type, sum, date, category, description FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND date >= '" + fromDate + "' AND date <= '" + toDate + "'";		
+		String querryStr = "SELECT type, sum, date, category, description, costsid FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND date >= '" + fromDate + "' AND date <= '" + toDate + "'";		
 		String querryStrOut = "SELECT SUM(sum) FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND date >= '" + fromDate + "' AND date <= '" + toDate + "' AND type = 'outcomes'";
 		String querryStrIn = "SELECT SUM(sum) FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND date >= '" + fromDate + "' AND date <= '" + toDate + "' AND type = 'incomes'";
 		
@@ -150,7 +279,8 @@ public class Bean implements Serializable {
 		    			rs.getString("sum").substring(0, rs.getString("sum").length()-1), 
 		    			rs.getString("date"), 
 		    			rs.getString("category"), 
-		    			rs.getString("description") );	 
+		    			rs.getString("description"),
+		    			rs.getString("costsid"));	 
 		    	myCosts.add(myCost);
 		    }
 		    		    
@@ -193,7 +323,7 @@ public class Bean implements Serializable {
 	
 	
 	private ArrayList<Costs> getAllCostsFromDB(String username) {
-		String querryStr = "SELECT type, sum, date, category, description FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid";		
+		String querryStr = "SELECT type, sum, date, category, description, costsid FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid";		
 		String querryStrOut = "SELECT SUM(sum) FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND type = 'outcomes'";
 		String querryStrIn = "SELECT SUM(sum) FROM public.\"Users\", public.\"Costs\" WHERE username = '" + username +"' AND public.\"Costs\".userid = public.\"Users\".userid AND type = 'incomes'";
 		
@@ -213,7 +343,8 @@ public class Bean implements Serializable {
 		    			rs.getString("sum").substring(0, rs.getString("sum").length()-1), 
 		    			rs.getString("date"), 
 		    			rs.getString("category"), 
-		    			rs.getString("description") );	 
+		    			rs.getString("description"),
+		    			rs.getString("costsid"));	 
 		    	myCosts.add(myCost);
 		    }
 		    

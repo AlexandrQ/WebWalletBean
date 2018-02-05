@@ -20,7 +20,9 @@
 	</h:head>
 	
 	<h:body>     	   
-	
+			
+		<p:growl id="msgs" showDetail="true"/>
+		
 	   	<div align="center"><h:outputLabel value="Hello, #{bean1.name} !" style="font-size:200%;"/></div>
 	   	
 	   	
@@ -79,20 +81,25 @@
      
     	<p:spacer width="100" height="50"></p:spacer>
 	   	
+	   	
+	   	
 	   	<div align="center">
-		   	<p:dataTable var="cost" value="#{bean1.myCosts}" scrollable="true" scrollHeight="400" style="width:90%;">          		         		
+		   	<p:dataTable var="cost" value="#{bean1.myCosts}" scrollable="true" scrollHeight="400" style="width:90%;" editable="true" >          		         		
 	          	
 	          		<f:facet name="header">
 	            		Costs
 	       			</f:facet>
+	       			
+	       			<p:ajax event="rowEdit" listener="#{cost1.onRowEdit}" update="msgs" />
+	       			<p:ajax event="rowEditCancel" listener="#{cost1.onRowCancel}" update="msgs" />
 	       			
 	       			 
 	          		
 					<p:column headerText="Type" footerText="Type">	
 						<h:outputText value="#{cost.type}" />		               				
 					</p:column>
-					<p:column headerText="Sum" footerText="Sum">
-						<h:outputText value="#{cost.sum}" />	 						
+					<p:column headerText="Sum" footerText="Sum">	
+						<h:outputText value="#{cost.sum}" />
 					</p:column>
 					<p:column headerText="Date" footerText="Date">
 						<h:outputText value="#{cost.date}" />	 						
@@ -101,8 +108,14 @@
 						<h:outputText value="#{cost.category}" />	 						
 					</p:column>
 					<p:column headerText="Description" footerText="Description">
-						<h:outputText value="#{cost.description}" />	 						
+						<p:cellEditor>
+							<f:facet name="output"><h:outputText value="#{cost.description}" /></f:facet>
+							<f:facet name="input"><p:inputText id="modelInput" value="#{cost.description}" /></f:facet>
+						</p:cellEditor>	 						
 					</p:column>	
+					<p:column>
+						<p:rowEditor />
+					</p:column>
 					
 					<p:columnGroup type="footer">
                 		<p:row>
@@ -113,6 +126,24 @@
 							
 			</p:dataTable>
 		</div>  
+		
+		<p:spacer width="100" height="50"></p:spacer>
+		
+		<table align="center" >
+			<tr>
+				<td> <p:chart type="pie" model="#{bean1.costsChart}" style="width:400px;height:300px" /> </td>
+				<td> <p:chart type="pie" model="#{bean1.incomesChart}" style="width:400px;height:300px" /> </td>
+				<td> <p:chart type="pie" model="#{bean1.outcomesChart}" style="width:400px;height:300px" /> </td>
+			</tr>
+		</table>
+		
+		 
+			
+			
+		
+		
+		
+				
 		
 		<p:spacer width="100" height="50"></p:spacer>
 		
